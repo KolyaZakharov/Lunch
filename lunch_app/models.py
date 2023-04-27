@@ -15,7 +15,12 @@ class Menu(models.Model):
     date = models.DateField()
     cuisine = models.CharField(max_length=50)
     items = models.TextField()
-    price = models.DecimalField(blank=True, null=True, max_digits=6, decimal_places=2)
+    price = models.DecimalField(
+        blank=True,
+        null=True,
+        max_digits=6,
+        decimal_places=2
+    )
 
     unique_together = ["restaurant", "date"]
 

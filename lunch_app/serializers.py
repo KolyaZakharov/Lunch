@@ -28,11 +28,21 @@ class RestaurantSerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(style={"input_type": "password"}, write_only=True)
+    password = serializers.CharField(
+        style={"input_type": "password"},
+        write_only=True
+    )
 
     class Meta:
         model = Employee
-        fields = ["id", "username", "password", "is_active", "is_staff", "is_superuser"]
+        fields = [
+            "id",
+            "username",
+            "password",
+            "is_active",
+            "is_staff",
+            "is_superuser"
+        ]
         read_only_fields = ("id", "is_staff")
         extra_kwargs = {"password": {"write_only": True, "min_length": 6}}
 
@@ -73,22 +83,28 @@ class VoteSerializer(serializers.ModelSerializer):
         menu = data["menu"]
 
         if menu.date < datetime.today().date():
-            raise serializers.ValidationError("User cannot vote for past dates!")
+            raise serializers.ValidationError(
+                "User cannot vote for past dates!"
+            )
 
         already_voted = Vote.objects.filter(user=user, menu__date=menu.date)
         if already_voted:
             raise serializers.ValidationError("User has already voted!")
 
-        voting_concluded = Winner.objects.filter(menu__date=datetime.today().date())
+        voting_concluded = Winner.objects.filter(
+            menu__date=datetime.today().date()
+        )
         if voting_concluded:
             raise serializers.ValidationError("Voting concluded for the day!")
 
         recurring_wins = Winner.objects.filter(
-            menu__restaurant=menu.restaurant, date__in=get_last_n_working_days(2)
+            menu__restaurant=menu.restaurant,
+            date__in=get_last_n_working_days(2)
         ).count()
         if recurring_wins == 2:
             raise serializers.ValidationError(
-                "This restaurant won on last 2 days. Cannot vote for this restaurant!"
+                "This restaurant won on last 2 days."
+                " Cannot vote for this restaurant!"
             )
         return data
 
@@ -142,6 +158,7 @@ class WinnerSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_last_winner():
-        return Winner.objects.filter(date__in=get_last_n_working_days(1)).values_list(
+        return Winner.objects.filter(
+            date__in=get_last_n_working_days(1)).values_list(
             "menu__restaurant", flat=True
         )
